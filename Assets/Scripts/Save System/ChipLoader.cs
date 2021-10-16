@@ -23,10 +23,10 @@ public static class ChipLoader {
       if (!chipSaveString.Contains("wireType") ||
           chipSaveString.Contains("outputPinNames") ||
           !chipSaveString.Contains("outputPins")) {
-        // An update is made to the save string and returned
-        string updatedSave =
-            SaveCompatibility.FixSaveCompatibility(chipSaveString);
-        savedChips[i] = JsonUtility.FromJson<SavedChip>(updatedSave);
+          // An update is made to the save string and returned
+          string updatedSave =
+              SaveCompatibility.FixSaveCompatibility(chipSaveString);
+          savedChips[i] = JsonUtility.FromJson<SavedChip>(updatedSave);
       } else {
         savedChips[i] = JsonUtility.FromJson<SavedChip>(chipSaveString);
       }
