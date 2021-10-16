@@ -6,8 +6,8 @@ using UnityEngine.Networking;
 using UnityEngine.UI;
 
 namespace StandaloneFileBrowser.Sample {
-[RequireComponent(typeof(Button))]
-public class CanvasSampleOpenFileImage : MonoBehaviour, IPointerDownHandler {
+  [RequireComponent(typeof(Button))]
+  public class CanvasSampleOpenFileImage : MonoBehaviour, IPointerDownHandler {
     public RawImage output;
 
 #if UNITY_WEBGL && !UNITY_EDITOR
@@ -20,13 +20,11 @@ public class CanvasSampleOpenFileImage : MonoBehaviour, IPointerDownHandler {
                                           bool multiple);
 
     public void OnPointerDown(PointerEventData eventData) {
-        UploadFile(gameObject.name, "OnFileUpload", ".png, .jpg", false);
+      UploadFile(gameObject.name, "OnFileUpload", ".png, .jpg", false);
     }
 
     // Called from browser
-    public void OnFileUpload(string url) {
-        StartCoroutine(OutputRoutine(url));
-    }
+    public void OnFileUpload(string url) { StartCoroutine(OutputRoutine(url)); }
 #else
     //
     // Standalone platforms & editor
@@ -34,22 +32,22 @@ public class CanvasSampleOpenFileImage : MonoBehaviour, IPointerDownHandler {
     public void OnPointerDown(PointerEventData eventData) {}
 
     private void Start() {
-        var button = GetComponent<Button>();
-        button.onClick.AddListener(OnClick);
+      var button = GetComponent<Button>();
+      button.onClick.AddListener(OnClick);
     }
 
     private void OnClick() {
-        var paths =
-            StandaloneFileBrowser.OpenFilePanel("Title", "", ".png", false);
-        if (paths.Length > 0)
-            StartCoroutine(OutputRoutine(new Uri(paths[0]).AbsoluteUri));
+      var paths =
+          StandaloneFileBrowser.OpenFilePanel("Title", "", ".png", false);
+      if (paths.Length > 0)
+        StartCoroutine(OutputRoutine(new Uri(paths[0]).AbsoluteUri));
     }
 #endif
 
     private IEnumerator OutputRoutine(string url) {
-        var loader = new UnityWebRequest(url);
-        yield return loader.SendWebRequest();
-        output.texture = ((DownloadHandlerTexture)loader.downloadHandler).texture;
+      var loader = new UnityWebRequest(url);
+      yield return loader.SendWebRequest();
+      output.texture = ((DownloadHandlerTexture)loader.downloadHandler).texture;
     }
-}
+  }
 }
