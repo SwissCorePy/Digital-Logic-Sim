@@ -4,40 +4,40 @@ using Graphics;
 
 namespace Core
 {
-    public static class CycleDetector
+public static class CycleDetector
+{
+    private static bool _currentChipHasCycle;
+
+    public static void MarkAllCycles(ChipEditor chipEditor)
     {
-        private static bool _currentChipHasCycle;
+        var chipsWithCycles = new List<Chip.Chip>();
+        if (chipsWithCycles == null) throw new ArgumentNullException(nameof(chipsWithCycles));
 
-        public static void MarkAllCycles(ChipEditor chipEditor)
-        {
-            var chipsWithCycles = new List<Chip.Chip>();
-            if (chipsWithCycles == null) throw new ArgumentNullException(nameof(chipsWithCycles));
+        var examinedChips = new HashSet<Chip.Chip>();
+        var chips = chipEditor.chipInteraction.allChips.ToArray();
 
-            var examinedChips = new HashSet<Chip.Chip>();
-            var chips = chipEditor.chipInteraction.allChips.ToArray();
-
-            // Clear all cycle markings
-            foreach (var chip in chips)
+        // Clear all cycle markings
+        foreach (var chip in chips)
             foreach (var inputPin in chip.inputPins)
                 inputPin.cyclic = false;
-            // Mark cycles
-            foreach (var chip in chips)
-            {
-                examinedChips.Clear();
-                _currentChipHasCycle = false;
-                MarkCycles(chip, chip, examinedChips);
-                if (_currentChipHasCycle) chipsWithCycles.Add(chip);
-            }
-        }
-
-        private static void MarkCycles(Chip.Chip originalChip, Chip.Chip currentChip, HashSet<Chip.Chip> examinedChips)
+        // Mark cycles
+        foreach (var chip in chips)
         {
-            if (!examinedChips.Contains(currentChip))
-                examinedChips.Add(currentChip);
-            else
-                return;
+            examinedChips.Clear();
+            _currentChipHasCycle = false;
+            MarkCycles(chip, chip, examinedChips);
+            if (_currentChipHasCycle) chipsWithCycles.Add(chip);
+        }
+    }
 
-            foreach (var outputPin in currentChip.outputPins)
+    private static void MarkCycles(Chip.Chip originalChip, Chip.Chip currentChip, HashSet<Chip.Chip> examinedChips)
+    {
+        if (!examinedChips.Contains(currentChip))
+            examinedChips.Add(currentChip);
+        else
+            return;
+
+        foreach (var outputPin in currentChip.outputPins)
             foreach (var childPin in outputPin.childPins)
             {
                 var childChip = childPin.chip;
@@ -56,6 +56,6 @@ namespace Core
                     MarkCycles(originalChip, childChip, examinedChips);
                 }
             }
-        }
     }
+}
 }

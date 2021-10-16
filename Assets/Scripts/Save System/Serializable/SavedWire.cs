@@ -4,27 +4,27 @@ using UnityEngine;
 
 namespace Save_System.Serializable
 {
-    [Serializable]
-    public class SavedWire
+[Serializable]
+public class SavedWire
+{
+    public int parentChipIndex;
+    public int parentChipOutputIndex;
+    public int childChipIndex;
+    public int childChipInputIndex;
+    public Vector2[] anchorPoints;
+
+    public SavedWire(ChipSaveData chipSaveData, Wire wire)
     {
-        public int parentChipIndex;
-        public int parentChipOutputIndex;
-        public int childChipIndex;
-        public int childChipInputIndex;
-        public Vector2[] anchorPoints;
+        var parentPin = wire.startPin;
+        var childPin = wire.endPin;
 
-        public SavedWire(ChipSaveData chipSaveData, Wire wire)
-        {
-            var parentPin = wire.startPin;
-            var childPin = wire.endPin;
+        parentChipIndex = chipSaveData.ComponentChipIndex(parentPin.chip);
+        parentChipOutputIndex = parentPin.index;
 
-            parentChipIndex = chipSaveData.ComponentChipIndex(parentPin.chip);
-            parentChipOutputIndex = parentPin.index;
+        childChipIndex = chipSaveData.ComponentChipIndex(childPin.chip);
+        childChipInputIndex = childPin.index;
 
-            childChipIndex = chipSaveData.ComponentChipIndex(childPin.chip);
-            childChipInputIndex = childPin.index;
-
-            anchorPoints = wire.anchorPoints.ToArray();
-        }
+        anchorPoints = wire.anchorPoints.ToArray();
     }
+}
 }

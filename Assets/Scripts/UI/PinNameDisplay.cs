@@ -4,23 +4,23 @@ using UnityEngine;
 
 namespace UI
 {
-    public class PinNameDisplay : MonoBehaviour
+public class PinNameDisplay : MonoBehaviour
+{
+    public TMP_Text nameUI;
+    public Transform background;
+    public Vector2 backgroundPadding;
+
+    public void Set(Pin pin)
     {
-        public TMP_Text nameUI;
-        public Transform background;
-        public Vector2 backgroundPadding;
+        nameUI.text = string.IsNullOrEmpty(pin.pinName) ? "UNNAMED PIN" : pin.pinName;
 
-        public void Set(Pin pin)
-        {
-            nameUI.text = string.IsNullOrEmpty(pin.pinName) ? "UNNAMED PIN" : pin.pinName;
+        var backgroundSizeX = nameUI.preferredWidth + backgroundPadding.x;
+        var backgroundSizeY = nameUI.preferredHeight + backgroundPadding.y;
+        background.localScale = new Vector3(backgroundSizeX, backgroundSizeY, 1);
 
-            var backgroundSizeX = nameUI.preferredWidth + backgroundPadding.x;
-            var backgroundSizeY = nameUI.preferredHeight + backgroundPadding.y;
-            background.localScale = new Vector3(backgroundSizeX, backgroundSizeY, 1);
-
-            var spacingFromPin = backgroundSizeX / 2 + Pin.interactionRadius * 1.5f;
-            spacingFromPin *= pin.pinType == Pin.PinType.ChipInput ? -1 : 1;
-            transform.position = pin.transform.position + Vector3.right * spacingFromPin + Vector3.forward * -1;
-        }
+        var spacingFromPin = backgroundSizeX / 2 + Pin.interactionRadius * 1.5f;
+        spacingFromPin *= pin.pinType == Pin.PinType.ChipInput ? -1 : 1;
+        transform.position = pin.transform.position + Vector3.right * spacingFromPin + Vector3.forward * -1;
     }
+}
 }

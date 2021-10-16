@@ -4,20 +4,20 @@ using UnityEngine.UI;
 
 namespace UI
 {
-    public class UpdateButton : MonoBehaviour
+public class UpdateButton : MonoBehaviour
+{
+    public Button updateButton;
+
+    public void Start()
     {
-        public Button updateButton;
-
-        public void Start()
-        {
-            updateButton.onClick.AddListener(ChipUpdatePressed);
-        }
-
-        public event Action ONChipUpdatePressed;
-
-        private void ChipUpdatePressed()
-        {
-            ONChipUpdatePressed?.Invoke();
-        }
+        updateButton.onClick.AddListener(ChipUpdatePressed);
     }
+
+    public event Action ONChipUpdatePressed;
+
+    private void ChipUpdatePressed()
+    {
+        ONChipUpdatePressed?.Invoke();
+    }
+}
 }

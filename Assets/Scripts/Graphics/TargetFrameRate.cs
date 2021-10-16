@@ -2,11 +2,11 @@
 
 namespace Graphics
 {
-    public class TargetFrameRate : MonoBehaviour
+public class TargetFrameRate : MonoBehaviour
+{
+    private void Awake()
     {
-        private void Awake()
-        {
-            Application.targetFrameRate = 60;
-        }
+        Application.targetFrameRate = 60;
     }
+}
 }

@@ -7,10 +7,10 @@ using UnityEngine.UI;
 
 namespace StandaloneFileBrowser.Sample
 {
-    [RequireComponent(typeof(Button))]
-    public class CanvasSampleOpenFileImage : MonoBehaviour, IPointerDownHandler
-    {
-        public RawImage output;
+[RequireComponent(typeof(Button))]
+public class CanvasSampleOpenFileImage : MonoBehaviour, IPointerDownHandler
+{
+    public RawImage output;
 
 #if UNITY_WEBGL && !UNITY_EDITOR
     //
@@ -28,31 +28,31 @@ namespace StandaloneFileBrowser.Sample
         StartCoroutine(OutputRoutine(url));
     }
 #else
-        //
-        // Standalone platforms & editor
-        //
-        public void OnPointerDown(PointerEventData eventData)
-        {
-        }
+    //
+    // Standalone platforms & editor
+    //
+    public void OnPointerDown(PointerEventData eventData)
+    {
+    }
 
-        private void Start()
-        {
-            var button = GetComponent<Button>();
-            button.onClick.AddListener(OnClick);
-        }
+    private void Start()
+    {
+        var button = GetComponent<Button>();
+        button.onClick.AddListener(OnClick);
+    }
 
-        private void OnClick()
-        {
-            var paths = StandaloneFileBrowser.OpenFilePanel("Title", "", ".png", false);
-            if (paths.Length > 0) StartCoroutine(OutputRoutine(new Uri(paths[0]).AbsoluteUri));
-        }
+    private void OnClick()
+    {
+        var paths = StandaloneFileBrowser.OpenFilePanel("Title", "", ".png", false);
+        if (paths.Length > 0) StartCoroutine(OutputRoutine(new Uri(paths[0]).AbsoluteUri));
+    }
 #endif
 
-        private IEnumerator OutputRoutine(string url)
-        {
-            var loader = new UnityWebRequest(url);
-            yield return loader.SendWebRequest();
-            output.texture = ((DownloadHandlerTexture)loader.downloadHandler).texture;
-        }
+    private IEnumerator OutputRoutine(string url)
+    {
+        var loader = new UnityWebRequest(url);
+        yield return loader.SendWebRequest();
+        output.texture = ((DownloadHandlerTexture)loader.downloadHandler).texture;
     }
+}
 }

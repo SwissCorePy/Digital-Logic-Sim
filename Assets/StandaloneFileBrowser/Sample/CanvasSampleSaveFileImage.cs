@@ -5,26 +5,26 @@ using UnityEngine.UI;
 
 namespace StandaloneFileBrowser.Sample
 {
-    [RequireComponent(typeof(Button))]
-    public class CanvasSampleSaveFileImage : MonoBehaviour, IPointerDownHandler
+[RequireComponent(typeof(Button))]
+public class CanvasSampleSaveFileImage : MonoBehaviour, IPointerDownHandler
+{
+    public Text output;
+
+    private byte[] _textureBytes;
+
+    private void Awake()
     {
-        public Text output;
-
-        private byte[] _textureBytes;
-
-        private void Awake()
-        {
-            // Create red texture
-            var width = 100;
-            var height = 100;
-            var tex = new Texture2D(width, height, TextureFormat.RGB24, false);
-            for (var i = 0; i < width; i++)
+        // Create red texture
+        var width = 100;
+        var height = 100;
+        var tex = new Texture2D(width, height, TextureFormat.RGB24, false);
+        for (var i = 0; i < width; i++)
             for (var j = 0; j < height; j++)
                 tex.SetPixel(i, j, Color.red);
-            tex.Apply();
-            _textureBytes = tex.EncodeToPNG();
-            Destroy(tex);
-        }
+        tex.Apply();
+        _textureBytes = tex.EncodeToPNG();
+        Destroy(tex);
+    }
 
 #if UNITY_WEBGL && !UNITY_EDITOR
     //
@@ -43,25 +43,25 @@ namespace StandaloneFileBrowser.Sample
         output.text = "File Successfully Downloaded";
     }
 #else
-        //
-        // Standalone platforms & editor
-        //
-        public void OnPointerDown(PointerEventData eventData)
-        {
-        }
-
-        // Listen OnClick event in standlone builds
-        private void Start()
-        {
-            var button = GetComponent<Button>();
-            button.onClick.AddListener(OnClick);
-        }
-
-        public void OnClick()
-        {
-            var path = StandaloneFileBrowser.SaveFilePanel("Title", "", "sample", "png");
-            if (!string.IsNullOrEmpty(path)) File.WriteAllBytes(path, _textureBytes);
-        }
-#endif
+    //
+    // Standalone platforms & editor
+    //
+    public void OnPointerDown(PointerEventData eventData)
+    {
     }
+
+    // Listen OnClick event in standlone builds
+    private void Start()
+    {
+        var button = GetComponent<Button>();
+        button.onClick.AddListener(OnClick);
+    }
+
+    public void OnClick()
+    {
+        var path = StandaloneFileBrowser.SaveFilePanel("Title", "", "sample", "png");
+        if (!string.IsNullOrEmpty(path)) File.WriteAllBytes(path, _textureBytes);
+    }
+#endif
+}
 }

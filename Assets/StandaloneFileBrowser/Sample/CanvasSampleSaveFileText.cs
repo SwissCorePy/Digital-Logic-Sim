@@ -5,13 +5,13 @@ using UnityEngine.UI;
 
 namespace StandaloneFileBrowser.Sample
 {
-    [RequireComponent(typeof(Button))]
-    public class CanvasSampleSaveFileText : MonoBehaviour, IPointerDownHandler
-    {
-        public Text output;
+[RequireComponent(typeof(Button))]
+public class CanvasSampleSaveFileText : MonoBehaviour, IPointerDownHandler
+{
+    public Text output;
 
-        // Sample text data
-        private readonly string _data = "Example text created by StandaloneFileBrowser";
+    // Sample text data
+    private readonly string _data = "Example text created by StandaloneFileBrowser";
 
 #if UNITY_WEBGL && !UNITY_EDITOR
     //
@@ -31,25 +31,25 @@ namespace StandaloneFileBrowser.Sample
         output.text = "File Successfully Downloaded";
     }
 #else
-        //
-        // Standalone platforms & editor
-        //
-        public void OnPointerDown(PointerEventData eventData)
-        {
-        }
-
-        // Listen OnClick event in standlone builds
-        private void Start()
-        {
-            var button = GetComponent<Button>();
-            button.onClick.AddListener(OnClick);
-        }
-
-        public void OnClick()
-        {
-            var path = StandaloneFileBrowser.SaveFilePanel("Title", "", "sample", "txt");
-            if (!string.IsNullOrEmpty(path)) File.WriteAllText(path, _data);
-        }
-#endif
+    //
+    // Standalone platforms & editor
+    //
+    public void OnPointerDown(PointerEventData eventData)
+    {
     }
+
+    // Listen OnClick event in standlone builds
+    private void Start()
+    {
+        var button = GetComponent<Button>();
+        button.onClick.AddListener(OnClick);
+    }
+
+    public void OnClick()
+    {
+        var path = StandaloneFileBrowser.SaveFilePanel("Title", "", "sample", "txt");
+        if (!string.IsNullOrEmpty(path)) File.WriteAllText(path, _data);
+    }
+#endif
+}
 }

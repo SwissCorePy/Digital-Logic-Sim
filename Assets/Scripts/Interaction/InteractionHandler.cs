@@ -10,53 +10,56 @@
 
 namespace Interaction
 {
-    public abstract class InteractionHandler : MonoBehaviour
+public abstract class InteractionHandler : MonoBehaviour
+{
+    private InteractionHandler[] allHandlers;
+
+    // Does this system currently have focus?
+    protected bool HasFocus {
+        get;
+        private set;
+    }
+
+    public void InitAllHandlers(InteractionHandler[] allHandlers)
     {
-        private InteractionHandler[] allHandlers;
+        this.allHandlers = allHandlers;
+    }
 
-        // Does this system currently have focus?
-        protected bool HasFocus { get; private set; }
+    public abstract void OrderedUpdate();
 
-        public void InitAllHandlers(InteractionHandler[] allHandlers)
+    // Handle losing focus
+    protected virtual void FocusLost()
+    {
+    }
+
+    // Is this interaction handler willing to relinquish focus right now?
+    protected virtual bool CanReleaseFocus()
+    {
+        return true;
+    }
+
+    // Request to have focus from whichever handler has focus at the moment.
+    // If succesful, HasFocus will be set to true.
+    protected virtual void RequestFocus()
+    {
+        if (!HasFocus)
         {
-            this.allHandlers = allHandlers;
-        }
-
-        public abstract void OrderedUpdate();
-
-        // Handle losing focus
-        protected virtual void FocusLost()
-        {
-        }
-
-        // Is this interaction handler willing to relinquish focus right now?
-        protected virtual bool CanReleaseFocus()
-        {
-            return true;
-        }
-
-        // Request to have focus from whichever handler has focus at the moment.
-        // If succesful, HasFocus will be set to true.
-        protected virtual void RequestFocus()
-        {
-            if (!HasFocus)
-            {
-                var noHandlersHaveFocus = true;
-                foreach (var otherHandler in allHandlers)
-                    if (otherHandler.HasFocus)
+            var noHandlersHaveFocus = true;
+            foreach (var otherHandler in allHandlers)
+                if (otherHandler.HasFocus)
+                {
+                    noHandlersHaveFocus = false;
+                    if (otherHandler.CanReleaseFocus())
                     {
-                        noHandlersHaveFocus = false;
-                        if (otherHandler.CanReleaseFocus())
-                        {
-                            otherHandler.HasFocus = false;
-                            otherHandler.FocusLost();
-                            HasFocus = true;
-                            break;
-                        }
+                        otherHandler.HasFocus = false;
+                        otherHandler.FocusLost();
+                        HasFocus = true;
+                        break;
                     }
+                }
 
-                if (noHandlersHaveFocus) HasFocus = true;
-            }
+            if (noHandlersHaveFocus) HasFocus = true;
         }
     }
+}
 }

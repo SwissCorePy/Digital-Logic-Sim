@@ -2,46 +2,46 @@
 
 namespace UI
 {
-    public enum UIManagerState
+public enum UIManagerState
+{
+    Create,
+    Update
+}
+
+public class UIManager : MonoBehaviour
+{
+    public GameObject createButton;
+    public GameObject updateButton;
+
+    private UIManagerState _state;
+
+    public void Start()
     {
-        Create,
-        Update
+        UpdateState();
     }
 
-    public class UIManager : MonoBehaviour
+    public void ChangeState(UIManagerState newState)
     {
-        public GameObject createButton;
-        public GameObject updateButton;
-
-        private UIManagerState _state;
-
-        public void Start()
+        if (_state != newState)
         {
+            _state = newState;
             UpdateState();
         }
+    }
 
-        public void ChangeState(UIManagerState newState)
+    private void UpdateState()
+    {
+        switch (_state)
         {
-            if (_state != newState)
-            {
-                _state = newState;
-                UpdateState();
-            }
-        }
-
-        private void UpdateState()
-        {
-            switch (_state)
-            {
-                case UIManagerState.Create:
-                    createButton.SetActive(true);
-                    updateButton.SetActive(false);
-                    break;
-                case UIManagerState.Update:
-                    createButton.SetActive(false);
-                    updateButton.SetActive(true);
-                    break;
-            }
+        case UIManagerState.Create:
+            createButton.SetActive(true);
+            updateButton.SetActive(false);
+            break;
+        case UIManagerState.Update:
+            createButton.SetActive(false);
+            updateButton.SetActive(true);
+            break;
         }
     }
+}
 }

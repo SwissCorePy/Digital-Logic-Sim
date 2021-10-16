@@ -2,17 +2,17 @@
 
 namespace Save_System.Serializable
 {
-    [Serializable]
-    public class SavedWireLayout
+[Serializable]
+public class SavedWireLayout
+{
+    public SavedWire[] serializableWires;
+
+    public SavedWireLayout(ChipSaveData chipSaveData)
     {
-        public SavedWire[] serializableWires;
+        var allWires = chipSaveData.wires;
+        serializableWires = new SavedWire[allWires.Length];
 
-        public SavedWireLayout(ChipSaveData chipSaveData)
-        {
-            var allWires = chipSaveData.wires;
-            serializableWires = new SavedWire[allWires.Length];
-
-            for (var i = 0; i < allWires.Length; i++) serializableWires[i] = new SavedWire(chipSaveData, allWires[i]);
-        }
+        for (var i = 0; i < allWires.Length; i++) serializableWires[i] = new SavedWire(chipSaveData, allWires[i]);
     }
+}
 }
