@@ -1,52 +1,54 @@
-using System.Collections;
-using System.Collections.Generic;
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class CreateGroup : MonoBehaviour
+namespace UI
 {
-
-    public event System.Action<int> onGroupSizeSettingPressed;
-
-    public TMP_InputField groupSizeInput;
-    public Button setSizeButton;
-    public GameObject menuHolder;
-    private bool menuActive;
-
-    int groupSizeValue;
-
-    // Start is called before the first frame update
-    void Start ()
+    public class CreateGroup : MonoBehaviour
     {
-        menuActive = false;
-        groupSizeValue = 8;
-        setSizeButton.onClick.AddListener (SetGroupSize);
-        groupSizeInput.onValueChanged.AddListener (SetCurrentText);
-    }
+        public TMP_InputField groupSizeInput;
+        public Button setSizeButton;
+        public GameObject menuHolder;
 
-    void SetCurrentText (string groupSize) {
-        groupSizeValue = int.Parse(groupSize);
-    }
+        private int _groupSizeValue;
+        private bool _menuActive;
 
-    public void CloseMenu () {
-        onGroupSizeSettingPressed.Invoke(groupSizeValue);
-        menuActive = false;
-        menuHolder.SetActive(false);
-    }
-
-    public void OpenMenu ()
-    {
-        menuActive = true;
-        menuHolder.SetActive(true);
-    }
-
-    void SetGroupSize () {
-        if (menuActive) {
-            CloseMenu();
-        } else {
-            OpenMenu();
+        // Start is called before the first frame update
+        private void Start()
+        {
+            _menuActive = false;
+            _groupSizeValue = 8;
+            setSizeButton.onClick.AddListener(SetGroupSize);
+            groupSizeInput.onValueChanged.AddListener(SetCurrentText);
         }
 
+        public event Action<int> ONGroupSizeSettingPressed;
+
+        private void SetCurrentText(string groupSize)
+        {
+            _groupSizeValue = int.Parse(groupSize);
+        }
+
+        public void CloseMenu()
+        {
+            ONGroupSizeSettingPressed?.Invoke(_groupSizeValue);
+            _menuActive = false;
+            menuHolder.SetActive(false);
+        }
+
+        private void OpenMenu()
+        {
+            _menuActive = true;
+            menuHolder.SetActive(true);
+        }
+
+        private void SetGroupSize()
+        {
+            if (_menuActive)
+                CloseMenu();
+            else
+                OpenMenu();
+        }
     }
 }

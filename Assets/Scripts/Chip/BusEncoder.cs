@@ -1,28 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine.XR;
+﻿using System.Linq;
 
-namespace Assets.Scripts.Chip
+namespace Chip
 {
-	public class BusEncoder : BuiltinChip
-	{
-		protected override void Awake()
-		{
-			base.Awake();
-		}
+    public class BusEncoder : BuiltinChip
+    {
+        protected override void ProcessOutput()
+        {
+            var outputSignal = 0;
+            foreach (var inputState in inputPins.Select(x => x.State))
+            {
+                outputSignal <<= 1;
+                outputSignal |= inputState;
+            }
 
-		protected override void ProcessOutput()
-		{
-			int outputSignal = 0;
-			foreach(var inputState in inputPins.Select(x => x.State))
-			{
-				outputSignal <<= 1;
-				outputSignal |= inputState;
-			}
-			outputPins[0].ReceiveSignal(outputSignal);
-		}
-	}
+            outputPins[0].ReceiveSignal(outputSignal);
+        }
+    }
 }

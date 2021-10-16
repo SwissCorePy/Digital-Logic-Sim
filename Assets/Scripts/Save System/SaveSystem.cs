@@ -1,76 +1,86 @@
-﻿using System.IO;
+﻿using System;
+using System.Diagnostics;
+using System.IO;
+using Core;
+using Save_System.Serializable;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
-public static class SaveSystem {
-
-	static string activeProjectName = "Untitled";
-	const string fileExtension = ".txt";
-
-	public static void SetActiveProject (string projectName) {
-		activeProjectName = projectName;
-	}
-
-	public static void Init () {
-		// Create save directory (if doesn't exist already)
-		Directory.CreateDirectory (CurrentSaveProfileDirectoryPath);
-		Directory.CreateDirectory (CurrentSaveProfileWireLayoutDirectoryPath);
-	}
-
-	public static string[] GetChipSavePaths()
+namespace Save_System
+{
+    public static class SaveSystem
     {
-		return Directory.GetFiles(CurrentSaveProfileDirectoryPath, "*" + fileExtension);
-	}
+        private const string FileExtension = ".txt";
+        private static string _activeProjectName = "Untitled";
 
-	public static void LoadAll (Manager manager) {
-		// Load any saved chips
-		var sw = System.Diagnostics.Stopwatch.StartNew();
-		ChipLoader.LoadAllChips (GetChipSavePaths(), manager);
-		Debug.Log ("Load time: " + sw.ElapsedMilliseconds);
-	}
+        private static string CurrentSaveProfileDirectoryPath =>
+            Path.Combine(SaveDataDirectoryPath, _activeProjectName);
 
-	public static SavedChip[] GetAllSavedChips()
-	{
-		// Load any saved chips
-		return ChipLoader.GetAllSavedChips(GetChipSavePaths());
-	}
+        private static string CurrentSaveProfileWireLayoutDirectoryPath =>
+            Path.Combine(CurrentSaveProfileDirectoryPath, "WireLayout");
 
-	public static string GetPathToSaveFile (string saveFileName) {
-		return Path.Combine (CurrentSaveProfileDirectoryPath, saveFileName + fileExtension);
-	}
+        private static string SaveDataDirectoryPath
+        {
+            get
+            {
+                const string saveFolderName = "SaveData";
+                return Path.Combine(Application.persistentDataPath, saveFolderName);
+            }
+        }
 
-	public static string GetPathToWireSaveFile (string saveFileName) {
-		return Path.Combine (CurrentSaveProfileWireLayoutDirectoryPath, saveFileName + fileExtension);
-	}
+        public static void SetActiveProject(string projectName)
+        {
+            _activeProjectName = projectName;
+        }
 
-	static string CurrentSaveProfileDirectoryPath {
-		get {
-			return Path.Combine (SaveDataDirectoryPath, activeProjectName);
-		}
-	}
+        public static void Init()
+        {
+            // Create save directory (if doesn't exist already)
+            Directory.CreateDirectory(CurrentSaveProfileDirectoryPath);
+            Directory.CreateDirectory(CurrentSaveProfileWireLayoutDirectoryPath);
+        }
 
-	static string CurrentSaveProfileWireLayoutDirectoryPath {
-		get {
-			return Path.Combine (CurrentSaveProfileDirectoryPath, "WireLayout");
-		}
-	}
+        private static string[] GetChipSavePaths()
+        {
+            return Directory.GetFiles(CurrentSaveProfileDirectoryPath, "*" + FileExtension);
+        }
 
-	public static string[] GetSaveNames () {
-		string[] savedProjectPaths = new string[0];
-		if (Directory.Exists (SaveDataDirectoryPath)) {
-			savedProjectPaths = Directory.GetDirectories (SaveDataDirectoryPath);
-		}
-		for (int i = 0; i < savedProjectPaths.Length; i++) {
-			string[] pathSections = savedProjectPaths[i].Split (Path.DirectorySeparatorChar);
-			savedProjectPaths[i] = pathSections[pathSections.Length - 1];
-		}
-		return savedProjectPaths;
-	}
+        public static void LoadAll(Manager manager)
+        {
+            // Load any saved chips
+            var sw = Stopwatch.StartNew();
+            ChipLoader.LoadAllChips(GetChipSavePaths(), manager);
+            Debug.Log("Load time: " + sw.ElapsedMilliseconds);
+        }
 
-	public static string SaveDataDirectoryPath {
-		get {
-			const string saveFolderName = "SaveData";
-			return Path.Combine (Application.persistentDataPath, saveFolderName);
-		}
-	}
+        public static SavedChip[] GetAllSavedChips()
+        {
+            // Load any saved chips
+            return ChipLoader.GetAllSavedChips(GetChipSavePaths());
+        }
 
+        public static string GetPathToSaveFile(string saveFileName)
+        {
+            return Path.Combine(CurrentSaveProfileDirectoryPath, saveFileName + FileExtension);
+        }
+
+        public static string GetPathToWireSaveFile(string saveFileName)
+        {
+            return Path.Combine(CurrentSaveProfileWireLayoutDirectoryPath, saveFileName + FileExtension);
+        }
+
+        public static string[] GetSaveNames()
+        {
+            var savedProjectPaths = Array.Empty<string>();
+            if (Directory.Exists(SaveDataDirectoryPath))
+                savedProjectPaths = Directory.GetDirectories(SaveDataDirectoryPath);
+            for (var i = 0; i < savedProjectPaths.Length; i++)
+            {
+                var pathSections = savedProjectPaths[i].Split(Path.DirectorySeparatorChar);
+                savedProjectPaths[i] = pathSections[pathSections.Length - 1];
+            }
+
+            return savedProjectPaths;
+        }
+    }
 }

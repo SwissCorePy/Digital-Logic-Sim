@@ -1,27 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine.XR;
+﻿using System.Linq;
 
-namespace Assets.Scripts.Chip
+namespace Chip
 {
-	public class BusDecoder : BuiltinChip
-	{
-		protected override void Awake()
-		{
-			base.Awake();
-		}
-
-		protected override void ProcessOutput()
-		{
-			var inputSignal = inputPins[0].State;
-			foreach(var outputPin in outputPins.Reverse())
-			{
-				outputPin.ReceiveSignal(inputSignal & 1);
-				inputSignal >>= 1;
-			}
-		}
-	}
+    public class BusDecoder : BuiltinChip
+    {
+        protected override void ProcessOutput()
+        {
+            var inputSignal = inputPins[0].State;
+            foreach (var outputPin in outputPins.Reverse())
+            {
+                outputPin.ReceiveSignal(inputSignal & 1);
+                inputSignal >>= 1;
+            }
+        }
+    }
 }

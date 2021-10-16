@@ -1,124 +1,141 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
+using Chip;
+using Graphics;
+using Save_System;
+using UI;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 
-public class Manager : MonoBehaviour {
+namespace Core
+{
+    public class Manager : MonoBehaviour
+    {
+        private static Manager _instance;
 
-	public event System.Action<Chip> customChipCreated;
-	public event System.Action<Chip> customChipUpdated;
+        public ChipEditor chipEditorPrefab;
+        public ChipPackage chipPackagePrefab;
+        public Wire wirePrefab;
+        public Chip.Chip[] builtinChips;
+        public List<Chip.Chip> spawnableChips;
+        [FormerlySerializedAs("UIManager")] public UIManager uiManager;
 
-	public ChipEditor chipEditorPrefab;
-	public ChipPackage chipPackagePrefab;
-	public Wire wirePrefab;
-	public Chip[] builtinChips;
-	public List<Chip> spawnableChips;
-	public UIManager UIManager;
+        private ChipEditor _activeChipEditor;
+        private int _currentChipCreationIndex;
 
-	ChipEditor activeChipEditor;
-	int currentChipCreationIndex;
-	static Manager instance;
+        public static ChipEditor ActiveChipEditor => _instance._activeChipEditor;
 
-	void Awake () {
-		instance = this;
-		activeChipEditor = FindObjectOfType<ChipEditor> ();
-		FindObjectOfType<CreateMenu> ().onChipCreatePressed += SaveAndPackageChip;
-		FindObjectOfType<UpdateButton> ().onChipUpdatePressed += UpdateChip;
-	}
+        private void Awake()
+        {
+            _instance = this;
+            _activeChipEditor = FindObjectOfType<ChipEditor>();
+            FindObjectOfType<CreateMenu>().ONChipCreatePressed += SaveAndPackageChip;
+            FindObjectOfType<UpdateButton>().ONChipUpdatePressed += UpdateChip;
+        }
 
-	void Start () {
-		spawnableChips = new List<Chip>();
-		SaveSystem.Init ();
-		SaveSystem.LoadAll (this);
-	}
+        private void Start()
+        {
+            spawnableChips = new List<Chip.Chip>();
+            SaveSystem.Init();
+            SaveSystem.LoadAll(this);
+        }
 
-	public static ChipEditor ActiveChipEditor {
-		get {
-			return instance.activeChipEditor;
-		}
-	}
+        public event Action<Chip.Chip> CustomChipCreated;
+        public event Action<Chip.Chip> CustomChipUpdated;
 
-	public Chip LoadChip (ChipSaveData loadedChipData) {
-		activeChipEditor.LoadFromSaveData (loadedChipData);
-		currentChipCreationIndex = activeChipEditor.creationIndex;
+        public Chip.Chip LoadChip(ChipSaveData loadedChipData)
+        {
+            _activeChipEditor.LoadFromSaveData(loadedChipData);
+            _currentChipCreationIndex = _activeChipEditor.creationIndex;
 
-		Chip loadedChip = PackageChip ();
-		LoadNewEditor ();
-		return loadedChip;
-	}
+            var loadedChip = PackageChip();
+            LoadNewEditor();
+            return loadedChip;
+        }
 
-	public void ViewChip (Chip chip) {
-		LoadNewEditor ();
-		UIManager.ChangeState(UIManagerState.Update);
+        public void ViewChip(Chip.Chip chip)
+        {
+            LoadNewEditor();
+            uiManager.ChangeState(UIManagerState.Update);
 
-		ChipSaveData chipSaveData = ChipLoader.GetChipSaveData(chip, builtinChips, spawnableChips, wirePrefab, activeChipEditor);
-		activeChipEditor.LoadFromSaveData(chipSaveData);
-	}
+            var chipSaveData =
+                ChipLoader.GetChipSaveData(chip, builtinChips, spawnableChips, wirePrefab, _activeChipEditor);
+            _activeChipEditor.LoadFromSaveData(chipSaveData);
+        }
 
-	void SaveAndPackageChip () {
-		ChipSaver.Save (activeChipEditor);
-		PackageChip ();
-		LoadNewEditor ();
-	}
+        private void SaveAndPackageChip()
+        {
+            ChipSaver.Save(_activeChipEditor);
+            PackageChip();
+            LoadNewEditor();
+        }
 
-	void UpdateChip () {
-		Chip updatedChip = TryPackageAndReplaceChip(activeChipEditor.chipName);
-		ChipSaver.Update (activeChipEditor, updatedChip);
-		LoadNewEditor ();
-	}
+        private void UpdateChip()
+        {
+            var updatedChip = TryPackageAndReplaceChip(_activeChipEditor.chipName);
+            ChipSaver.Update(_activeChipEditor, updatedChip);
+            LoadNewEditor();
+        }
 
-	Chip PackageChip () {
-		ChipPackage package = Instantiate (chipPackagePrefab, parent : transform);
-		package.PackageCustomChip (activeChipEditor);
-		package.gameObject.SetActive (false);
+        private Chip.Chip PackageChip()
+        {
+            var package = Instantiate(chipPackagePrefab, transform);
+            package.PackageCustomChip(_activeChipEditor);
+            package.gameObject.SetActive(false);
 
-		Chip customChip = package.GetComponent<Chip> ();
-		customChip.canBeEdited = true;
-		customChipCreated?.Invoke (customChip);
-		currentChipCreationIndex++;
-		spawnableChips.Add(customChip);
-		return customChip;
-	}
+            var customChip = package.GetComponent<Chip.Chip>();
+            customChip.canBeEdited = true;
+            CustomChipCreated?.Invoke(customChip);
+            _currentChipCreationIndex++;
+            spawnableChips.Add(customChip);
+            return customChip;
+        }
 
-	Chip TryPackageAndReplaceChip(string original) {
-		ChipPackage oldPackage = Array.Find(GetComponentsInChildren<ChipPackage>(true), cp => cp.name == original);
-		if (oldPackage != null) {
-			Destroy(oldPackage.gameObject);
-		}
+        private Chip.Chip TryPackageAndReplaceChip(string original)
+        {
+            var oldPackage = Array.Find(GetComponentsInChildren<ChipPackage>(true), cp => cp.name == original);
+            if (oldPackage != null) Destroy(oldPackage.gameObject);
 
-		ChipPackage package = Instantiate (chipPackagePrefab, parent : transform);
-		package.PackageCustomChip (activeChipEditor);
-		package.gameObject.SetActive (false);
+            var package = Instantiate(chipPackagePrefab, transform);
+            package.PackageCustomChip(_activeChipEditor);
+            package.gameObject.SetActive(false);
 
-		Chip customChip = package.GetComponent<Chip> ();
-		customChip.canBeEdited = true;
-		int index = spawnableChips.FindIndex(c => c.chipName == original);
-		if (index >= 0) {
-			spawnableChips[index] = customChip;
-			customChipUpdated?.Invoke(customChip);
-		}
+            var customChip = package.GetComponent<Chip.Chip>();
+            customChip.canBeEdited = true;
+            var index = spawnableChips.FindIndex(c => c.chipName == original);
+            if (index >= 0)
+            {
+                spawnableChips[index] = customChip;
+                CustomChipUpdated?.Invoke(customChip);
+            }
 
-		return customChip;
-	}
+            return customChip;
+        }
 
-	void LoadNewEditor () {
-		if (activeChipEditor) {
-			Destroy (activeChipEditor.gameObject);
-			UIManager.ChangeState(UIManagerState.Create);
-		}
-		activeChipEditor = Instantiate (chipEditorPrefab, Vector3.zero, Quaternion.identity);
-		activeChipEditor.creationIndex = currentChipCreationIndex;
-	}
+        private void LoadNewEditor()
+        {
+            if (_activeChipEditor)
+            {
+                Destroy(_activeChipEditor.gameObject);
+                uiManager.ChangeState(UIManagerState.Create);
+            }
 
-	public void SpawnChip (Chip chip) {
-		if (chip is CustomChip custom)
-			custom.ApplyWireModes();
+            _activeChipEditor = Instantiate(chipEditorPrefab, Vector3.zero, Quaternion.identity);
+            _activeChipEditor.creationIndex = _currentChipCreationIndex;
+        }
 
-		activeChipEditor.chipInteraction.SpawnChip (chip);
-	}
+        public void SpawnChip(Chip.Chip chip)
+        {
+            if (chip is CustomChip custom)
+                custom.ApplyWireModes();
 
-	public void LoadMainMenu () {
-		UnityEngine.SceneManagement.SceneManager.LoadScene (0);
-	}
+            _activeChipEditor.chipInteraction.SpawnChip(chip);
+        }
 
+        public void LoadMainMenu()
+        {
+            SceneManager.LoadScene(0);
+        }
+    }
 }

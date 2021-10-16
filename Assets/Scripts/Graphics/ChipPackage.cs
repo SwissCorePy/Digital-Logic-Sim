@@ -1,145 +1,164 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using Chip;
+using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 
-public class ChipPackage : MonoBehaviour {
+namespace Graphics
+{
+    public class ChipPackage : MonoBehaviour
+    {
+        private const string PinHolderName = "Pin Holder";
 
-	public bool builtinChip;
-	public TMPro.TextMeshPro nameText;
-	public Transform container;
-	public Pin chipPinPrefab;
-	public bool override_width_and_height = false;
-	public float override_width = 1f;
-	public float override_height = 1f;
+        public bool builtinChip;
+        public TextMeshPro nameText;
+        public Transform container;
+        public Pin chipPinPrefab;
 
-	const string pinHolderName = "Pin Holder";
+        [FormerlySerializedAs("override_width_and_height")]
+        public bool overrideWidthANDHeight;
 
-	void Awake () {
-		if (builtinChip) {
-			BuiltinChip builtinChip = GetComponent<BuiltinChip> ();
-			SetSizeAndSpacing (GetComponent<Chip> ());
-			SetColour (builtinChip.packageColour);
-		}
-	}
+        [FormerlySerializedAs("override_width")]
+        public float overrideWidth = 1f;
 
-	public void PackageCustomChip (ChipEditor chipEditor) {
-		gameObject.name = chipEditor.chipName;
-		nameText.text = chipEditor.chipName;
-		nameText.color = chipEditor.chipNameColour;
-		SetColour (chipEditor.chipColour);
+        [FormerlySerializedAs("override_height")]
+        public float overrideHeight = 1f;
 
-		// Add and set up the custom chip component
-		CustomChip chip = gameObject.AddComponent<CustomChip> ();
-		chip.chipName = chipEditor.chipName;
+        private void Awake()
+        {
+            if (builtinChip)
+            {
+                var component = GetComponent<BuiltinChip>();
+                SetSizeAndSpacing(GetComponent<Chip.Chip>());
+                SetColour(component.packageColour);
+            }
+        }
 
-		// Set input signals
-		chip.inputSignals = new InputSignal[chipEditor.inputsEditor.signals.Count];
-		for (int i = 0; i < chip.inputSignals.Length; i++) {
-			chip.inputSignals[i] = (InputSignal) chipEditor.inputsEditor.signals[i];
-		}
+        public void PackageCustomChip(ChipEditor chipEditor)
+        {
+            gameObject.name = chipEditor.chipName;
+            nameText.text = chipEditor.chipName;
+            nameText.color = chipEditor.chipNameColour;
+            SetColour(chipEditor.chipColour);
 
-		// Set output signals
-		chip.outputSignals = new OutputSignal[chipEditor.outputsEditor.signals.Count];
-		for (int i = 0; i < chip.outputSignals.Length; i++) {
-			chip.outputSignals[i] = (OutputSignal) chipEditor.outputsEditor.signals[i];
-		}
+            // Add and set up the custom chip component
+            var chip = gameObject.AddComponent<CustomChip>();
+            chip.chipName = chipEditor.chipName;
 
-		// Create pins and set set package size
-		SpawnPins (chip);
-		SetSizeAndSpacing (chip);
+            // Set input signals
+            chip.inputSignals = new InputSignal[chipEditor.inputsEditor.signals.Count];
+            for (var i = 0; i < chip.inputSignals.Length; i++)
+                chip.inputSignals[i] = (InputSignal)chipEditor.inputsEditor.signals[i];
 
-		// Parent chip holder to the template, and hide
-		Transform implementationHolder = chipEditor.chipImplementationHolder;
-		implementationHolder.parent = transform;
-		implementationHolder.localPosition = Vector3.zero;
-		implementationHolder.gameObject.SetActive (false);
-	}
+            // Set output signals
+            chip.outputSignals = new OutputSignal[chipEditor.outputsEditor.signals.Count];
+            for (var i = 0; i < chip.outputSignals.Length; i++)
+                chip.outputSignals[i] = (OutputSignal)chipEditor.outputsEditor.signals[i];
 
-	public void SpawnPins (CustomChip chip) {
-		Transform pinHolder = new GameObject (pinHolderName).transform;
-		pinHolder.parent = transform;
-		pinHolder.localPosition = Vector3.zero;
+            // Create pins and set set package size
+            SpawnPins(chip);
+            SetSizeAndSpacing(chip);
 
-		chip.inputPins = new Pin[chip.inputSignals.Length];
-		chip.outputPins = new Pin[chip.outputSignals.Length];
+            // Parent chip holder to the template, and hide
+            var implementationHolder = chipEditor.chipImplementationHolder;
+            implementationHolder.parent = transform;
+            implementationHolder.localPosition = Vector3.zero;
+            implementationHolder.gameObject.SetActive(false);
+        }
 
-		for (int i = 0; i < chip.inputPins.Length; i++) {
-			Pin inputPin = Instantiate (chipPinPrefab, pinHolder.position, Quaternion.identity, pinHolder);
-			inputPin.pinType = Pin.PinType.ChipInput;
-			inputPin.chip = chip;
-			inputPin.pinName = chip.inputSignals[i].outputPins[0].pinName;
-			chip.inputPins[i] = inputPin;
-			inputPin.SetScale ();
-		}
+        private void SpawnPins(CustomChip chip)
+        {
+            var pinHolder = new GameObject(PinHolderName).transform;
+            pinHolder.parent = transform;
+            pinHolder.localPosition = Vector3.zero;
 
-		for (int i = 0; i < chip.outputPins.Length; i++) {
-			Pin outputPin = Instantiate (chipPinPrefab, pinHolder.position, Quaternion.identity, pinHolder);
-			outputPin.pinType = Pin.PinType.ChipOutput;
-			outputPin.chip = chip;
-			outputPin.pinName = chip.outputSignals[i].inputPins[0].pinName;
-			chip.outputPins[i] = outputPin;
-			outputPin.SetScale ();
-		}
+            chip.inputPins = new Pin[chip.inputSignals.Length];
+            chip.outputPins = new Pin[chip.outputSignals.Length];
 
-	}
+            for (var i = 0; i < chip.inputPins.Length; i++)
+            {
+                var inputPin = Instantiate(chipPinPrefab, pinHolder.position, Quaternion.identity, pinHolder);
+                inputPin.pinType = Pin.PinType.ChipInput;
+                inputPin.chip = chip;
+                inputPin.pinName = chip.inputSignals[i].outputPins[0].pinName;
+                chip.inputPins[i] = inputPin;
+                inputPin.SetScale();
+            }
 
-	public void SetSizeAndSpacing (Chip chip) {
-		nameText.fontSize = 2.5f;
+            for (var i = 0; i < chip.outputPins.Length; i++)
+            {
+                var outputPin = Instantiate(chipPinPrefab, pinHolder.position, Quaternion.identity, pinHolder);
+                outputPin.pinType = Pin.PinType.ChipOutput;
+                outputPin.chip = chip;
+                outputPin.pinName = chip.outputSignals[i].inputPins[0].pinName;
+                chip.outputPins[i] = outputPin;
+                outputPin.SetScale();
+            }
+        }
 
-		float containerHeightPadding = 0;
-		float containerWidthPadding = 0.1f;
-		float pinSpacePadding = Pin.radius * 0.2f;
-		float containerWidth = nameText.preferredWidth + Pin.interactionRadius * 2f + containerWidthPadding;
+        private void SetSizeAndSpacing(Chip.Chip chip)
+        {
+            nameText.fontSize = 2.5f;
 
-		int numPins = Mathf.Max (chip.inputPins.Length, chip.outputPins.Length);
-		float unpaddedContainerHeight = numPins * (Pin.radius * 2 + pinSpacePadding);
-		float containerHeight = Mathf.Max (unpaddedContainerHeight, nameText.preferredHeight + 0.05f) + containerHeightPadding;
-		float topPinY = unpaddedContainerHeight / 2 - Pin.radius;
-		float bottomPinY = -unpaddedContainerHeight / 2 + Pin.radius;
-		const float z = -0.05f;
+            float containerHeightPadding = 0;
+            var containerWidthPadding = 0.1f;
+            var pinSpacePadding = Pin.radius * 0.2f;
+            var containerWidth = nameText.preferredWidth + Pin.interactionRadius * 2f + containerWidthPadding;
 
-		// Input pins
-		int numInputPinsToAutoPlace = chip.inputPins.Length;
-		for (int i = 0; i < numInputPinsToAutoPlace; i++) {
-			float percent = 0.5f;
-			if (chip.inputPins.Length > 1) {
-				percent = i / (numInputPinsToAutoPlace - 1f);
-			}
-			if(override_width_and_height) {
-				float posX = -override_width / 2f;
-				float posY = Mathf.Lerp (topPinY, bottomPinY, percent);
-				chip.inputPins[i].transform.localPosition = new Vector3 (posX, posY, z);
-			} else {
-				float posX = -containerWidth / 2f;
-				float posY = Mathf.Lerp (topPinY, bottomPinY, percent);
-				chip.inputPins[i].transform.localPosition = new Vector3 (posX, posY, z);
-			}
-		}
+            var numPins = Mathf.Max(chip.inputPins.Length, chip.outputPins.Length);
+            var unpaddedContainerHeight = numPins * (Pin.radius * 2 + pinSpacePadding);
+            var containerHeight = Mathf.Max(unpaddedContainerHeight, nameText.preferredHeight + 0.05f) +
+                                  containerHeightPadding;
+            var topPinY = unpaddedContainerHeight / 2 - Pin.radius;
+            var bottomPinY = -unpaddedContainerHeight / 2 + Pin.radius;
+            const float z = -0.05f;
 
-		// Output pins
-		for (int i = 0; i < chip.outputPins.Length; i++) {
-			float percent = 0.5f;
-			if (chip.outputPins.Length > 1) {
-				percent = i / (chip.outputPins.Length - 1f);
+            // Input pins
+            var numInputPinsToAutoPlace = chip.inputPins.Length;
+            for (var i = 0; i < numInputPinsToAutoPlace; i++)
+            {
+                var percent = 0.5f;
+                if (chip.inputPins.Length > 1) percent = i / (numInputPinsToAutoPlace - 1f);
+                if (overrideWidthANDHeight)
+                {
+                    var posX = -overrideWidth / 2f;
+                    var posY = Mathf.Lerp(topPinY, bottomPinY, percent);
+                    chip.inputPins[i].transform.localPosition = new Vector3(posX, posY, z);
+                }
+                else
+                {
+                    var posX = -containerWidth / 2f;
+                    var posY = Mathf.Lerp(topPinY, bottomPinY, percent);
+                    chip.inputPins[i].transform.localPosition = new Vector3(posX, posY, z);
+                }
+            }
 
-			}
+            // Output pins
+            for (var i = 0; i < chip.outputPins.Length; i++)
+            {
+                var percent = 0.5f;
+                if (chip.outputPins.Length > 1) percent = i / (chip.outputPins.Length - 1f);
 
-			float posX = containerWidth / 2f;
-			float posY = Mathf.Lerp (topPinY, bottomPinY, percent);
-			chip.outputPins[i].transform.localPosition = new Vector3 (posX, posY, z);
-		}
+                var posX = containerWidth / 2f;
+                var posY = Mathf.Lerp(topPinY, bottomPinY, percent);
+                chip.outputPins[i].transform.localPosition = new Vector3(posX, posY, z);
+            }
 
-		// Set container size
-		if(override_width_and_height) {
-			container.transform.localScale = new Vector3 (override_width, override_height, 1);
-			GetComponent<BoxCollider2D> ().size = new Vector2 (override_width, override_height);
-		} else {
-			container.transform.localScale = new Vector3 (containerWidth, containerHeight, 1);
-			GetComponent<BoxCollider2D> ().size = new Vector2 (containerWidth, containerHeight);
-		}
-	}
+            // Set container size
+            if (overrideWidthANDHeight)
+            {
+                container.transform.localScale = new Vector3(overrideWidth, overrideHeight, 1);
+                GetComponent<BoxCollider2D>().size = new Vector2(overrideWidth, overrideHeight);
+            }
+            else
+            {
+                container.transform.localScale = new Vector3(containerWidth, containerHeight, 1);
+                GetComponent<BoxCollider2D>().size = new Vector2(containerWidth, containerHeight);
+            }
+        }
 
-	void SetColour (Color colour) {
-		container.GetComponent<MeshRenderer> ().material.color = colour;
-	}
+        private void SetColour(Color colour)
+        {
+            container.GetComponent<MeshRenderer>().material.color = colour;
+        }
+    }
 }

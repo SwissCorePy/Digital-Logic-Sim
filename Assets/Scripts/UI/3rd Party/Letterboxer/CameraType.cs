@@ -1,4 +1,4 @@
-﻿namespace Letterboxer
+﻿namespace UI._3rd_Party.Letterboxer
 {
     public enum CameraType
     {

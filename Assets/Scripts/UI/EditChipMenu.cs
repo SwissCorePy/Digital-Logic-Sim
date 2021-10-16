@@ -1,181 +1,172 @@
-﻿using UnityEngine;
-using TMPro;
-using UnityEngine.UI;
-using System;
-using SFB;
+﻿using System;
 using System.Linq;
+using Core;
+using Interaction;
+using Save_System;
+using Save_System.Serializable;
+using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
 
-public class EditChipMenu : MonoBehaviour
+namespace UI
 {
-    public TMP_InputField chipNameField;
-    public Button doneButton;
-    public Button deleteButton;
-    public Button viewButton;
-    public Button exportButton;
-    public GameObject panel;
-    public ChipBarUI chipBarUI;
-
-    private Manager manager;
-    private Chip currentChip;
-    private string nameBeforeChanging;
-    public bool isActive;
-
-    private bool init = false;
-    private bool focused = false;
-
-    public void Init()
+    public class EditChipMenu : MonoBehaviour
     {
-        if (init)
+        public TMP_InputField chipNameField;
+        public Button doneButton;
+        public Button deleteButton;
+        public Button viewButton;
+        public Button exportButton;
+        public GameObject panel;
+        public ChipBarUI chipBarUI;
+        public bool isActive;
+        private Chip.Chip _currentChip;
+        private bool _focused;
+
+        private bool _init;
+
+        private Manager _manager;
+        private string _nameBeforeChanging;
+
+        public void Update()
         {
-            return;
+            if (!_focused) return;
+            if (!Input.GetMouseButtonDown(0) && !Input.GetMouseButtonDown(1) && !Input.GetMouseButtonDown(2)) return;
+            if (Camera.main is null) return;
+            
+            Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            var hit = Physics2D.Raycast(mousePosition, Vector2.zero);
+
+            if (hit.collider == null) return;
+            
+            if (hit.collider.name != panel.name)
+                CloseEditChipMenu();
         }
 
-        chipBarUI = GameObject.Find("Chip Bar").GetComponent<ChipBarUI>();
-        chipNameField.onValueChanged.AddListener(ChipNameFieldChanged);
-        doneButton.onClick.AddListener(FinishCreation);
-        deleteButton.onClick.AddListener(DeleteChip);
-        viewButton.onClick.AddListener(ViewChip);
-        exportButton.onClick.AddListener(ExportChip);
-        manager = FindObjectOfType<Manager>();
-        FindObjectOfType<ChipInteraction>().editChipMenu = this;
-        panel.gameObject.SetActive(false);
-        init = true;
-        isActive = false;
-    }
-
-    public void EditChip(Chip chip)
-    {
-        panel.gameObject.SetActive(true);
-        isActive = true;
-        GameObject chipUI = GameObject.Find("Create (" + chip.chipName + ")");
-        this.gameObject.transform.position = chipUI.transform.position + new Vector3(7.5f, -0.65f, 0);
-        float xVal = Math.Min(this.gameObject.transform.position.x, 13.9f);
-        xVal = Math.Max(xVal, -0.1f);
-        this.gameObject.transform.position = new Vector3(xVal, this.gameObject.transform.position.y, this.gameObject.transform.position.z);
-        chipNameField.text = chip.chipName;
-        nameBeforeChanging = chip.chipName;
-        doneButton.interactable = true;
-        chipNameField.interactable = ChipSaver.IsSafeToDelete(nameBeforeChanging);
-        deleteButton.interactable = ChipSaver.IsSafeToDelete(nameBeforeChanging);
-        viewButton.interactable = chip.canBeEdited;
-        exportButton.interactable = chip.canBeEdited;
-        focused = true;
-        currentChip = chip;
-    }
-
-    public void ChipNameFieldChanged(string value)
-    {
-        string formattedName = value.ToUpper();
-        doneButton.interactable = IsValidChipName(formattedName.Trim());
-        chipNameField.text = formattedName;
-    }
-
-    public bool IsValidRename(string chipName)
-    {
-        if (nameBeforeChanging == chipName)
+        public void Init()
         {
-            // Name has not changed
-            return true;
+            if (_init) return;
+
+            chipBarUI = GameObject.Find("Chip Bar").GetComponent<ChipBarUI>();
+            chipNameField.onValueChanged.AddListener(ChipNameFieldChanged);
+            doneButton.onClick.AddListener(FinishCreation);
+            deleteButton.onClick.AddListener(DeleteChip);
+            viewButton.onClick.AddListener(ViewChip);
+            exportButton.onClick.AddListener(ExportChip);
+            _manager = FindObjectOfType<Manager>();
+            FindObjectOfType<ChipInteraction>().editChipMenu = this;
+            panel.gameObject.SetActive(false);
+            _init = true;
+            isActive = false;
         }
-        if (!IsValidChipName(chipName))
+
+        public void EditChip(Chip.Chip chip)
         {
-            // Name is either empty, AND or NOT
-            return false;
+            panel.gameObject.SetActive(true);
+            isActive = true;
+            var chipUI = GameObject.Find("Create (" + chip.chipName + ")");
+            var gameObject1 = gameObject;
+            
+            gameObject1.transform.position = chipUI.transform.position + new Vector3(7.5f, -0.65f, 0);
+            var xVal = Math.Min(gameObject1.transform.position.x, 13.9f);
+            xVal = Math.Max(xVal, -0.1f);
+            
+            var o = gameObject;
+            var position = o.transform.position;
+            
+            position = new Vector3(xVal, position.y, position.z);
+            o.transform.position = position;
+            chipNameField.text = chip.chipName;
+            _nameBeforeChanging = chip.chipName;
+            doneButton.interactable = true;
+            chipNameField.interactable = ChipSaver.IsSafeToDelete(_nameBeforeChanging);
+            deleteButton.interactable = ChipSaver.IsSafeToDelete(_nameBeforeChanging);
+            viewButton.interactable = chip.canBeEdited;
+            exportButton.interactable = chip.canBeEdited;
+            _focused = true;
+            _currentChip = chip;
         }
-        SavedChip[] savedChips = SaveSystem.GetAllSavedChips();
-        for (int i = 0; i < savedChips.Length; i++)
+
+        private void ChipNameFieldChanged(string value)
         {
-            if (savedChips[i].name == chipName)
-            {
-                // Name already exists in custom chip
+            var formattedName = value.ToUpper();
+            doneButton.interactable = IsValidChipName(formattedName.Trim());
+            chipNameField.text = formattedName;
+        }
+
+        public bool IsValidRename(string chipName)
+        {
+            if (_nameBeforeChanging == chipName)
+                // Name has not changed
+                return true;
+            if (!IsValidChipName(chipName))
+                // Name is either empty, AND or NOT
                 return false;
-            }
+            var savedChips = SaveSystem.GetAllSavedChips();
+            return savedChips.All(savedChip => savedChip.name != chipName);
         }
-        return true;
-    }
 
-    public bool IsValidChipName(string chipName)
-    {
-        String[] notValidArray = {
-            "AND", "NOT", "OR", "XOR", "HDD",
-            "4 BIT ENCODER", "4 BIT DECODER",
-            "8 BIT ENCODER", "8 BIT DECODER",
-            "16 BIT ENCODER", "16 BIT DECODER"
-        };
-
-        // If chipName is in notValidArray then is not a valid name
-        if (!notValidArray.Any(chipName.Contains) && chipName.Length != 0) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public void DeleteChip()
-    {
-        ChipSaver.Delete(nameBeforeChanging);
-        CloseEditChipMenu();
-        EditChipBar();
-    }
-
-    public void EditChipBar()
-    {
-        chipBarUI.ReloadBar();
-        SaveSystem.LoadAll(manager);
-    }
-
-    public void FinishCreation()
-    {
-        if (chipNameField.text != nameBeforeChanging)
+        private bool IsValidChipName(string chipName)
         {
-            // Chip has been renamed
-            ChipSaver.Rename(nameBeforeChanging, chipNameField.text.Trim());
+            string[] notValidArray =
+            {
+                "AND", "NOT", "OR", "XOR", "HDD",
+                "4 BIT ENCODER", "4 BIT DECODER",
+                "8 BIT ENCODER", "8 BIT DECODER",
+                "16 BIT ENCODER", "16 BIT DECODER"
+            };
+
+            // If chipName is in notValidArray then is not a valid name
+            return !notValidArray.Any(chipName.Contains) && chipName.Length != 0;
+        }
+
+        private void DeleteChip()
+        {
+            ChipSaver.Delete(_nameBeforeChanging);
+            CloseEditChipMenu();
             EditChipBar();
         }
-        CloseEditChipMenu();
-    }
 
-    public void CloseEditChipMenu()
-    {
-        panel.gameObject.SetActive(false);
-        isActive = false;
-        focused = false;
-        currentChip = null;
-    }
+        private void EditChipBar()
+        {
+            chipBarUI.ReloadBar();
+            SaveSystem.LoadAll(_manager);
+        }
 
-    public void ViewChip()
-    {
-        if (currentChip != null) {
-            manager.ViewChip(currentChip);
+        private void FinishCreation()
+        {
+            if (chipNameField.text != _nameBeforeChanging)
+            {
+                // Chip has been renamed
+                ChipSaver.Rename(_nameBeforeChanging, chipNameField.text.Trim());
+                EditChipBar();
+            }
+
             CloseEditChipMenu();
         }
-    }
 
-    public void ExportChip()
-    {
-        string path = StandaloneFileBrowser.SaveFilePanel("Export chip design", "", currentChip.chipName + ".dls", "dls");
-        if (path.Length != 0) {
-            ChipSaver.Export(currentChip, path);
+        private void CloseEditChipMenu()
+        {
+            panel.gameObject.SetActive(false);
+            isActive = false;
+            _focused = false;
+            _currentChip = null;
         }
-    }
 
-    public void Update()
-    {
-        if (focused) {
-            if (Input.GetMouseButtonDown(0) ||
-                Input.GetMouseButtonDown(1) ||
-                Input.GetMouseButtonDown(2))
+        private void ViewChip()
+        {
+            if (_currentChip != null)
             {
-                Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                RaycastHit2D hit = Physics2D.Raycast(mousePosition, Vector2.zero);
-
-                if(hit.collider != null) {
-                    // If click is outside the panel
-                    if (hit.collider.name != panel.name) {
-                        CloseEditChipMenu();
-                    }
-                }
+                _manager.ViewChip(_currentChip);
+                CloseEditChipMenu();
             }
+        }
+
+        private void ExportChip()
+        {
+            var path = StandaloneFileBrowser.StandaloneFileBrowser.SaveFilePanel("Export chip design", "",
+                _currentChip.chipName + ".dls", "dls");
+            if (path.Length != 0) ChipSaver.Export(_currentChip, path);
         }
     }
 }

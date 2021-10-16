@@ -1,19 +1,23 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UpdateButton : MonoBehaviour
+namespace UI
 {
-    public event System.Action onChipUpdatePressed;
+    public class UpdateButton : MonoBehaviour
+    {
+        public Button updateButton;
 
-    public Button updateButton;
+        public void Start()
+        {
+            updateButton.onClick.AddListener(ChipUpdatePressed);
+        }
 
-    public void Start() {
-        updateButton.onClick.AddListener(ChipUpdatePressed);
-    }
+        public event Action ONChipUpdatePressed;
 
-    void ChipUpdatePressed() {
-        onChipUpdatePressed?.Invoke();
+        private void ChipUpdatePressed()
+        {
+            ONChipUpdatePressed?.Invoke();
+        }
     }
 }

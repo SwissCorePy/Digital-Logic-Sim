@@ -1,66 +1,53 @@
-using System.Collections;
-using System.Collections.Generic;
+using Core;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class RunButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+namespace UI
 {
+    public class RunButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+    {
+        public Button button;
+        public TMP_Text buttonText;
+        public Color normalCol = Color.white;
+        public Color nonInteractableCol = Color.grey;
+        public Color highlightedCol = Color.white;
+        public Simulation sim;
+        private bool _highlighted;
 
-	public Button button;
-	public TMPro.TMP_Text buttonText;
-	public Color normalCol = Color.white;
-	public Color nonInteractableCol = Color.grey;
-	public Color highlightedCol = Color.white;
-	bool highlighted;
-	public Simulation sim;
+        private void Update()
+        {
+            var col = _highlighted ? highlightedCol : normalCol;
+            buttonText.color = button.interactable ? col : nonInteractableCol;
 
-	void Start()
-	{
+            buttonText.text = sim.active switch
+            {
+                true when buttonText.text != "STOP" => "STOP",
+                false when buttonText.text != "RUN" => "RUN",
+                _ => buttonText.text
+            };
+        }
 
-	}
+        private void OnEnable()
+        {
+            _highlighted = false;
+        }
 
-	void Update()
-	{
-		Color col = (highlighted) ? highlightedCol : normalCol;
-		buttonText.color = (button.interactable) ? col : nonInteractableCol;
+        private void OnValidate()
+        {
+            if (button == null) button = GetComponent<Button>();
+            if (buttonText == null) buttonText = transform.GetComponentInChildren<TMP_Text>();
+        }
 
-		if (sim.active && buttonText.text != "STOP") {
-			buttonText.text = "STOP";
-		}
-		else if (!sim.active && buttonText.text != "RUN") {
-			buttonText.text = "RUN";
-		}
-	}
+        public void OnPointerEnter(PointerEventData eventData)
+        {
+            if (button.interactable) _highlighted = true;
+        }
 
-	public void OnPointerEnter(PointerEventData eventData)
-	{
-		if (button.interactable)
-		{
-			highlighted = true;
-		}
-	}
-
-	public void OnPointerExit(PointerEventData eventData)
-	{
-		highlighted = false;
-	}
-
-	void OnEnable()
-	{
-		highlighted = false;
-	}
-
-	void OnValidate()
-	{
-		if (button == null)
-		{
-			button = GetComponent<Button>();
-		}
-		if (buttonText == null)
-		{
-			buttonText = transform.GetComponentInChildren<TMPro.TMP_Text>();
-		}
-	}
-
+        public void OnPointerExit(PointerEventData eventData)
+        {
+            _highlighted = false;
+        }
+    }
 }

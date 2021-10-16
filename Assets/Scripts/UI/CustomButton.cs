@@ -1,27 +1,31 @@
-﻿using System.Collections;
+﻿using System;
 using System.Collections.Generic;
-using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class CustomButton : Button, IPointerDownHandler {
-	public event System.Action onPointerDown;
-	public List<System.Action> events = new List<System.Action>();
+namespace UI
+{
+    public class CustomButton : Button
+    {
+        public List<Action> events = new List<Action>();
+        public event Action ONPointerDown;
 
-	public override void OnPointerDown (PointerEventData eventData) {
-		base.OnPointerDown (eventData);
-		onPointerDown?.Invoke ();
-	}
+        public override void OnPointerDown(PointerEventData eventData)
+        {
+            base.OnPointerDown(eventData);
+            ONPointerDown?.Invoke();
+        }
 
-	public void AddListener(System.Action action) {
-		onPointerDown += action;
-		events.Add(action);
-	}
+        public void AddListener(Action action)
+        {
+            ONPointerDown += action;
+            events.Add(action);
+        }
 
-	public void ClearEvents() {
-		foreach (System.Action a in events) {
-			onPointerDown -= a;
-		}
-		events.Clear();
-	}
+        public void ClearEvents()
+        {
+            foreach (var a in events) ONPointerDown -= a;
+            events.Clear();
+        }
+    }
 }

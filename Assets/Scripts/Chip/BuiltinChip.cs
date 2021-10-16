@@ -1,7 +1,9 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-public class BuiltinChip : Chip {
-	public Color packageColour;
+namespace Chip
+{
+    public class BuiltinChip : Chip
+    {
+        public Color packageColour;
+    }
 }
