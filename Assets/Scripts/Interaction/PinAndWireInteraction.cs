@@ -158,7 +158,7 @@ public class PinAndWireInteraction : InteractionHandler {
   private void HandleWireCreation() {
     if (Input.GetMouseButtonDown(
             0)) // Wire can be created from a pin, or from another wire (in
-                // which case it uses that wire's start pin)
+      // which case it uses that wire's start pin)
       if (pinUnderMouse || highlightedWire) {
         RequestFocus();
         if (HasFocus) {

@@ -99,9 +99,9 @@ namespace UI._3rd_Party {
         var meshIndex =
             charInfo
                 .materialReferenceIndex; // Get the index of the material / sub
-                                         // text object used by this character.
+        // text object used by this character.
         var vertexIndex = charInfo.vertexIndex; // Get the index of the first
-                                                // vertex of this character.
+        // vertex of this character.
 
         var vertexColors = pTextMeshPro.textInfo.meshInfo[meshIndex]
                                .colors32; // the colors for this character
