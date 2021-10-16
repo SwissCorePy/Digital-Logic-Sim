@@ -3,9 +3,9 @@ using System.Linq;
 using UnityEngine;
 
 namespace Save_System.Serializable {
-  [Serializable]
-  // Composite chip is a custom chip made up from other chips ("components")
-  public class SavedChip {
+[Serializable]
+// Composite chip is a custom chip made up from other chips ("components")
+public class SavedChip {
     public string name;
     public int creationIndex;
     public Color colour;
@@ -21,22 +21,22 @@ namespace Save_System.Serializable {
     public SavedComponentChip[] savedComponentChips;
 
     public SavedChip(ChipSaveData chipSaveData) {
-      name = chipSaveData.chipName;
-      creationIndex = chipSaveData.creationIndex;
-      colour = chipSaveData.chipColour;
-      nameColour = chipSaveData.chipNameColour;
+        name = chipSaveData.chipName;
+        creationIndex = chipSaveData.creationIndex;
+        colour = chipSaveData.chipColour;
+        nameColour = chipSaveData.chipNameColour;
 
-      // Create list of (unique) names of all chips used to make this chip
-      componentNameList = chipSaveData.componentChips.Select(x => x.chipName)
-                              .Distinct()
-                              .ToArray();
+        // Create list of (unique) names of all chips used to make this chip
+        componentNameList = chipSaveData.componentChips.Select(x => x.chipName)
+                            .Distinct()
+                            .ToArray();
 
-      // Create serializable chips
-      savedComponentChips =
-          new SavedComponentChip[chipSaveData.componentChips.Length];
-      for (var i = 0; i < chipSaveData.componentChips.Length; i++)
-        savedComponentChips[i] = new SavedComponentChip(
-            chipSaveData, chipSaveData.componentChips[i]);
+        // Create serializable chips
+        savedComponentChips =
+            new SavedComponentChip[chipSaveData.componentChips.Length];
+        for (var i = 0; i < chipSaveData.componentChips.Length; i++)
+            savedComponentChips[i] = new SavedComponentChip(
+                chipSaveData, chipSaveData.componentChips[i]);
     }
-  }
+}
 }

@@ -4,8 +4,8 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace StandaloneFileBrowser.Sample {
-  [RequireComponent(typeof(Button))]
-  public class CanvasSampleSaveFileText : MonoBehaviour, IPointerDownHandler {
+[RequireComponent(typeof(Button))]
+public class CanvasSampleSaveFileText : MonoBehaviour, IPointerDownHandler {
     public Text output;
 
     // Sample text data
@@ -24,14 +24,14 @@ namespace StandaloneFileBrowser.Sample {
 
     // Broser plugin should be called in OnPointerDown.
     public void OnPointerDown(PointerEventData eventData) {
-      var bytes = Encoding.UTF8.GetBytes(_data);
-      DownloadFile(gameObject.name, "OnFileDownload", "sample.txt", bytes,
-                   bytes.Length);
+        var bytes = Encoding.UTF8.GetBytes(_data);
+        DownloadFile(gameObject.name, "OnFileDownload", "sample.txt", bytes,
+                     bytes.Length);
     }
 
     // Called from browser
     public void OnFileDownload() {
-      output.text = "File Successfully Downloaded";
+        output.text = "File Successfully Downloaded";
     }
 #else
     //
@@ -41,16 +41,16 @@ namespace StandaloneFileBrowser.Sample {
 
     // Listen OnClick event in standlone builds
     private void Start() {
-      var button = GetComponent<Button>();
-      button.onClick.AddListener(OnClick);
+        var button = GetComponent<Button>();
+        button.onClick.AddListener(OnClick);
     }
 
     public void OnClick() {
-      var path =
-          StandaloneFileBrowser.SaveFilePanel("Title", "", "sample", "txt");
-      if (!string.IsNullOrEmpty(path))
-        File.WriteAllText(path, _data);
+        var path =
+            StandaloneFileBrowser.SaveFilePanel("Title", "", "sample", "txt");
+        if (!string.IsNullOrEmpty(path))
+            File.WriteAllText(path, _data);
     }
 #endif
-  }
+}
 }
