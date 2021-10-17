@@ -2,6 +2,6 @@
 
 namespace Chip {
 public class BuiltinChip : Chip {
-    public Color packageColour;
+  public Color packageColour;
 }
 }

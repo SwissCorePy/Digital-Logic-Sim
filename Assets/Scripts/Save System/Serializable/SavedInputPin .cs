@@ -2,8 +2,8 @@
 using Chip;
 
 namespace Save_System.Serializable {
-[Serializable]
-public class SavedInputPin {
+  [Serializable]
+  public class SavedInputPin {
     public string name;
 
     // An input pin receives its input from one of the output pins of some chip
@@ -15,16 +15,16 @@ public class SavedInputPin {
     public Pin.WireType wireType;
 
     public SavedInputPin(ChipSaveData chipSaveData, Pin pin) {
-        name = pin.pinName;
-        isCylic = pin.cyclic;
-        wireType = pin.wireType;
-        if (pin.parentPin) {
-            parentChipIndex = chipSaveData.ComponentChipIndex(pin.parentPin.chip);
-            parentChipOutputIndex = pin.parentPin.index;
-        } else {
-            parentChipIndex = -1;
-            parentChipOutputIndex = -1;
-        }
+      name = pin.pinName;
+      isCylic = pin.cyclic;
+      wireType = pin.wireType;
+      if (pin.parentPin) {
+        parentChipIndex = chipSaveData.ComponentChipIndex(pin.parentPin.chip);
+        parentChipOutputIndex = pin.parentPin.index;
+      } else {
+        parentChipIndex = -1;
+        parentChipOutputIndex = -1;
+      }
     }
-}
+  }
 }
