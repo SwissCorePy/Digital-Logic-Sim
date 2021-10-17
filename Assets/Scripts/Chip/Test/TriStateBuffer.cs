@@ -1,13 +1,13 @@
 ﻿namespace Chip.Test {
-  public class TriStateBuffer : Chip {
+public class TriStateBuffer : Chip {
     protected override void ProcessOutput() {
-      var data = inputPins[0].State;
-      var enable = inputPins[1].State;
+        var data = inputPins[0].State;
+        var enable = inputPins[1].State;
 
-      if (enable == 1) // Debug.Log (data + "  " + enable + ":  " + data);
-        outputPins[0].ReceiveSignal(data);
-      else // Debug.Log (data + "  " + enable + ":  -1");
-        outputPins[0].ReceiveSignal(-1);
+        if (enable == 1) // Debug.Log (data + "  " + enable + ":  " + data);
+            outputPins[0].ReceiveSignal(data);
+        else // Debug.Log (data + "  " + enable + ":  -1");
+            outputPins[0].ReceiveSignal(-1);
     }
-  }
+}
 }
